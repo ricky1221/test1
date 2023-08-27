@@ -1,0 +1,332 @@
+<?php
+include('conn.php');
+// include('navigations.php');
+
+// if (!isset($_SESSION["username"])) {
+//     header("location:index.php");
+// }
+
+// $username = $_SESSION["username"];
+// $sql = "SELECT buss_designation FROM users WHERE username = '$username'";
+// $result = mysqli_query($conn, $sql);
+// $row = mysqli_fetch_assoc($result);
+
+// $assigned_bus = $row['buss_designation'];
+
+// $query = "SELECT d_id FROM bus_data WHERE busnumber = '$assigned_bus'";
+// $resulta = mysqli_query($conn, $query);
+// $rowa = mysqli_fetch_assoc($resulta);
+
+// $darayber = $rowa['d_id'];
+
+// $successMessage = "";
+
+
+?>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bus Seat Numbers</title>
+    <link rel="stylesheet" href="assets/bootsrap/bootstrap.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+    .seat {
+        text-align: center;
+        margin-bottom: 10px;
+        width: 90%;
+        transition: background-color 0.3s;
+    }
+
+    .seat-container {
+        display: flex;
+    }
+
+    .seat-container .col:nth-child(1),
+    .seat-container .col:nth-child(2),
+    .seat-container .col:nth-child(3) {
+        flex: 1;
+    }
+
+    .align-row7 .col:nth-child(1),
+    .align-row7 .col:nth-child(2) {
+        flex: 1;
+    }
+    
+    .align-row7 .col:nth-child(3) {
+        flex-grow: 3;
+    }
+
+    .raise-btn {
+        margin-bottom: 10px;
+    }
+    .btn-check:checked+.btn-primary {
+            background-color: red;
+        }
+        .btn-check[disabled]+.btn-primary{
+            background-color: green;
+        }
+</style>
+</head>
+<body>
+<div id="successMessage"><?php echo $successMessage; ?></div>
+    <div class="container">
+    <h1 class="mt-5">On Route</h1>
+        <div class="row">
+        <div class="col-md-4 d-flex justify-content-center align-items-center" id="seatContainer">
+        <form action="print_dasboard2.php" method="POST">
+            <div class="seat-container">
+            <div class="col">
+            <div>
+            <input type="button" name="button_pickup" class="btn btn-primary btn-lg" id="pickupButton" value="PICK UP">
+            <input type="hidden" name="seatnumber" value="PICK UP">
+
+            </div>
+
+            </div>
+            </div>
+        </div>
+
+            <div class="col-md-8">
+
+                                <div class="row">
+                    <div class="col-md-4">
+                        <h5>Ticket type</h5>
+                        <?php
+                        $sql = "SELECT * FROM route";
+                        $result = mysqli_query($conn, $sql);
+                        ?>
+                        <select name="ticketType" id="ticketType" style="width: 100px" required>
+                            <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+                                <option value="<?php echo $row['fee'] ?>" required><?php echo $row['fee'] ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <center>
+                            <h5>Discount</h5>
+                            <?php
+                            $sql = "SELECT * FROM discount";
+                            $result = mysqli_query($conn, $sql);
+                            ?>
+                            <select name="discount" id="discount" style="width: 100px">
+                                <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+                                    <option value="<?php echo $row['disID'] ?>"><?php echo $row['passenger'] ?></option>
+                                <?php } ?>
+                            </select>
+                        </center>
+                    </div>
+
+                    <div class="col-md-4">
+                        <center>
+                            <h5>Trip Number</h5>
+                            <?php
+                            $sql = "SELECT MAX(trip_number) AS max_trip_number FROM tiket WHERE bus_id = '$assigned_bus' GROUP BY bus_id";
+                            $result = mysqli_query($conn, $sql);
+                            $max_trip_number = 1; // Set the default value to 1
+
+                            if ($result && mysqli_num_rows($result) > 0) {
+                                $row = mysqli_fetch_assoc($result);
+                                $max_trip_number = $row['max_trip_number'];
+                            }
+                            ?>
+                            <input type="text" style="width: 20px;" name="trip_number" id="trip_number" value="<?php echo $max_trip_number ?>" required>
+                        </center>
+                    </div>
+
+                </div>
+           
+            <br><br><br>
+            <!-- <div id="print_content"> -->
+            <div class="card mb-3" style="max-width: 100%;">
+                    <div class="row g-0">
+                        <div class="col-md-12">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                            <span id="date"></span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            <span id="time"></span>
+                                            <span style="float: right">Bus no. <input style="max-width: 20px;" type="text" id="bus_namber" name="bus_namber" value="<?php echo $assigned_bus;?>"> </span><br>
+                                            <input style="max-width: 20px;" type="hidden" id="bus_driver" name="bus_driver" value="<?php echo $darayber;?>"> </span><br>
+                                            <span>Quantity: <span id="buttonCounter" class="ms-2">0</span> </span>
+                                            <input type="hidden" name="buttonCounter" id="buttonCounterField">
+                                            <span style="float: right; margin-right: 20%;">Fare:<span id="totalValue">0</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                 </div>  
+            <!-- </div> -->
+            </div> <br>
+            <!-- <button type="button" class="btn btn-danger" style="float: right;" onclick="deselectCheckboxes()">Cancel</button> -->
+            <span><strong>Cash: &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" style="width: 70px;" id="cashInput"></strong></span><br><br>
+            <span><strong>Change: <span id="changeValue">0.00</span></strong></span> <br><br>
+            <button type="submit" name="save" class="btn btn-primary" id="saveButton" onclick="printContent()">Print</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="dashboard.php"><button type="button" class="btn btn-secondary">Back</button></a>
+            <button style="float: right;" type="button" class="btn btn-danger" id="cancelButton">Cancel</button>
+            <!-- <button style="float: right;" type="button" class="btn btn-danger" id="resetButton">Arrived</button> -->
+            </form>
+    </div>
+<script>
+const pickupButton = document.getElementById('pickupButton');
+const buttonCounterElement = document.getElementById('buttonCounter');
+const ticketTypeSelect = document.getElementById('ticketType');
+const saveButton = document.getElementById('saveButton');
+const cancelButton = document.getElementById('cancelButton');
+const cashInput = document.getElementById('cashInput');
+const totalValueElement = document.getElementById('totalValue');
+const changeValueElement = document.getElementById('changeValue');
+const discountSelect = document.getElementById('discount');
+
+let buttonCounter = localStorage.getItem('buttonCounter') || 0;
+
+buttonCounterElement.textContent = buttonCounter;
+
+pickupButton.addEventListener('click', function() {
+  buttonCounter++;
+  buttonCounterElement.textContent = buttonCounter;
+
+  // Store the updated button counter value in localStorage
+  localStorage.setItem('buttonCounter', buttonCounter);
+
+  // Multiply the ticketType value
+  let ticketTypeValue = parseFloat(ticketTypeSelect.value);
+  let multipliedValue = ticketTypeValue * buttonCounter;
+
+  // Update the fare value on the page
+  totalValueElement.textContent = multipliedValue.toFixed(2);
+
+  // Recalculate the total price
+  calculateTotalPrice();
+});
+
+
+saveButton.addEventListener('click', function() {
+  document.getElementById('buttonCounterField').value = buttonCounter;
+
+  localStorage.setItem('buttonCounter', buttonCounter);
+  buttonCounter = 0;
+  buttonCounterElement.textContent = buttonCounter;
+
+  localStorage.setItem('buttonCounter', buttonCounter);
+});
+
+ticketTypeSelect.addEventListener('change', function() {
+  calculateTotalPrice();
+});
+
+discountSelect.addEventListener('change', function() {
+  calculateTotalPrice();
+});
+
+// Function to calculate the total price based on the selected checkboxes, ticket type, and discount
+function calculateTotalPrice() {
+  // Get the selected ticketType value and count
+  const ticketPrice = parseFloat(ticketTypeSelect.value);
+  const selectedCount = parseInt(buttonCounterElement.textContent);
+
+  // Calculate the total price without any discount
+  let totalPrice = selectedCount * ticketPrice;
+
+  // Check if the discount value is valid
+  const discountValue = parseInt(discountSelect.value);
+
+  if (!isNaN(discountValue) && discountValue === 2) {
+    // Deduct 20% from the total price
+    totalPrice *= 0.8;
+  }
+
+  // Update the total price display
+  totalValueElement.textContent = totalPrice.toFixed(2);
+}
+
+cancelButton.addEventListener('click', function() {
+  buttonCounter = 0;
+  buttonCounterElement.textContent = buttonCounter;
+  totalValueElement.textContent = "0";
+  localStorage.setItem('buttonCounter', buttonCounter);
+});
+
+cashInput.addEventListener('input', function() {
+    const cashValue = parseFloat(cashInput.value);
+    const totalValue = parseFloat(totalValueElement.textContent);
+
+    if (!isNaN(cashValue)) {
+      const changeValue = cashValue - totalValue;
+      // Update the change value on the page
+      changeValueElement.textContent = changeValue.toFixed(2);
+    } else {
+      // Reset the change value if the cash input is not a valid number
+      changeValueElement.textContent = '0.00';
+    }
+  });
+
+        discountSelect.addEventListener('change', () => {
+  calculateTotalPrice();
+});
+// function printContent() {
+//     var disp_setting = "toolbar=yes,location=no,directories=yes,menubar=yes,";
+//     disp_setting += "scrollbars=yes,width=1000,height=600,left=25,top=25";
+//     var content_value = document.getElementById("print_content").innerHTML;
+
+//     var printWindow = window.open("", "_blank", disp_setting);
+//     printWindow.document.open();
+//     printWindow.document.write('<html><head><title>BABTSC</title>');
+//     printWindow.document.write('</head><body onLoad="window.print()" style="width: 40%; font-size:12px; font-family:arial;">');
+//     printWindow.document.write(content_value);
+//     printWindow.document.write('</body></html>');
+//     printWindow.document.close();
+//     printWindow.focus();
+    
+//     setTimeout(function () {
+//         printWindow.print();
+//         printWindow.close();
+//     }, 5000); // 5000 milliseconds (5 seconds)
+// }
+
+// Function to calculate the total price based on the selected checkboxes, ticket type, and discount
+function calculateTotalPrice() {
+  // Get the selected ticketType value and count
+  const ticketPrice = parseFloat(ticketTypeSelect.value);
+  const selectedCount = parseInt(buttonCounterElement.textContent);
+
+  // Calculate the total price without any discount
+  let totalPrice = selectedCount * ticketPrice;
+
+  // Check if the discount value is valid
+  const discountValue = parseInt(discountSelect.value);
+
+  if (!isNaN(discountValue) && discountValue === 2) {
+    // Deduct 20% from the total price
+    totalPrice *= 0.8;
+  }
+
+  // Update the total price display
+  totalValueElement.textContent = totalPrice.toFixed(2);
+}
+
+function updateDateTime() {
+                var dateElement = document.getElementById("date");
+                var timeElement = document.getElementById("time");
+                var currentDateTime = new Date();
+          
+                var currentDate = currentDateTime.toLocaleDateString();
+                dateElement.innerText = "Date: " + currentDate;
+          
+                var currentTime = currentDateTime.toLocaleTimeString();
+                timeElement.innerText = "Time: " + currentTime;
+            }
+    
+            // Update date and time every second
+            setInterval(updateDateTime, 1000);
+
+       
+  </script>
+
+</body>
+</html>
