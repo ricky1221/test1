@@ -151,6 +151,7 @@ button {
 
                         <label for="feeInputModal1">Fee:</label>
                         <input style="width: 25px;" type="text" name="feeInput" id="feeInputModal1">
+                        
                         <!-- Rest of your form content ... -->
 
                         <div class="seat-container">
@@ -164,18 +165,6 @@ button {
 
                         <!-- Other form inputs ... -->
                         <div class="row">
-                    <div class="col-md-4">
-                        <h5>Ticket type</h5>
-                        <?php
-                        $sql = "SELECT * FROM route";
-                        $result = mysqli_query($conn, $sql);
-                        ?>
-                        <select name="ticketType" id="ticketType" style="width: 100px" required>
-                            <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-                                <option value="<?php echo $row['fee'] ?>" required><?php echo $row['fee'] ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
                     <div class="col-md-4">
                         <center>
                             <h5>Discount</h5>
@@ -213,7 +202,7 @@ button {
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12">
-                                            <span id="date"></span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <span id="date"></span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             <span id="time"></span>
                                             <span style="float: right">Bus no. <input style="max-width: 20px;" type="text" id="bus_namber" name="bus_namber" value="<?php echo $assigned_bus;?>"> </span><br>
                                             <input style="max-width: 20px;" type="hidden" id="bus_driver" name="bus_driver" value="<?php echo $darayber;?>"> </span><br>
@@ -273,7 +262,7 @@ button {
     });
     const pickupButton = document.getElementById('pickupButton');
 const buttonCounterElement = document.getElementById('buttonCounter');
-const ticketTypeSelect = document.getElementById('ticketType');
+const ticketTypeSelect = document.getElementById('feeInputModal1');
 const saveButton = document.getElementById('saveButton');
 const cancelButton = document.getElementById('cancelButton');
 const cashInput = document.getElementById('cashInput');
